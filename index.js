@@ -11,11 +11,6 @@ const findSubstring = (str, from, to) => {
   return str.substring(fromIndex, toIndex)
 }
 
-const regionMap = {
-  'eu1': 'euw',
-  'ru1': 'ru'
-}
-
 const getSummoner = async () => {
   const [leagueProcess] = await find('name', 'LeagueClientUx.exe', true)
 
@@ -23,6 +18,7 @@ const getSummoner = async () => {
 
   const port = findSubstring(leagueProcess.cmd, '--riotclient-app-port=', '" "--no-rads')
   const token = findSubstring(leagueProcess.cmd, '--riotclient-auth-token=', '""--riotclient-app-port')
+  const region = findSubstring(leagueProcess.cmd, '--region=', '" "--locale')
   const parsedToken = Buffer.from(`riot:${token}`).toString('base64')
 
   const { data } = await axios.get(`https://127.0.0.1:${port}/chat/v5/participants/champ-select`, {
@@ -35,14 +31,13 @@ const getSummoner = async () => {
 
   if (data.participants.length === 0) throw new Error()
 
-  return data.participants
+  return { teammates: data.participants, region }
 }
 
 const loadSummonerPage = (win) => {
   win.loadFile('load.html')
-  getSummoner().then(teammates => {
-    const summonerRegion = teammates[0].region
-    win.loadURL(`https://porofessor.gg/pregame/${regionMap[summonerRegion]}/${teammates.map(teammate => teammate.name).join(',')}`)
+  getSummoner().then(({ teammates, region }) => {
+    win.loadURL(`https://porofessor.gg/pregame/${region.toLowerCase()}/${teammates.map(teammate => teammate.name).join(',')}`)
   }).catch(() => {
     win.loadFile('error.html')
   })

@@ -1,5 +1,5 @@
 {
-  "name": "CheckTeammates",
+  "name": "CheckTeammatesLoL",
   "version": "1.0.0",
   "description": "Check teammates in League of Legends",
   "main": "index.js",
