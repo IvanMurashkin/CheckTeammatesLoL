@@ -4,9 +4,9 @@ const  axios = require('axios')
 const { app, BrowserWindow } = require('electron')
 const electronLocalshortcut = require('electron-localshortcut');
 
-const findSubstring = (str, from) => {
-  const fromIndex = str.indexOf(from) + from.length
-  const value = str.substring(fromIndex)
+const getCmdValueByKey = (cmd, key) => {
+  const fromIndex = cmd.indexOf(key) + key.length
+  const value = cmd.substring(fromIndex)
   const toIndex = value.indexOf('"')
 
   return value.substring(-toIndex, toIndex)
@@ -17,9 +17,9 @@ const getSummoner = async () => {
 
   if (!leagueProcess) throw new Error()
 
-  const port = findSubstring(leagueProcess.cmd, '--riotclient-app-port=')
-  const token = findSubstring(leagueProcess.cmd, '--riotclient-auth-token=')
-  const region = findSubstring(leagueProcess.cmd, '--region=')
+  const port = getCmdValueByKey(leagueProcess.cmd, '--riotclient-app-port=')
+  const token = getCmdValueByKey(leagueProcess.cmd, '--riotclient-auth-token=')
+  const region = getCmdValueByKey(leagueProcess.cmd, '--region=')
   const parsedToken = Buffer.from(`riot:${token}`).toString('base64')
 
   const { data } = await axios.get(`https://127.0.0.1:${port}/chat/v5/participants/champ-select`, {
